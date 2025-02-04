@@ -95,8 +95,7 @@ def ingresar_nuevo_estudiante():
     estudiante()
     calificaciones()
 
-
-# Revisar!!!!!!!!!!!!!
+# Revisar!!!!!!!
 def editar_informacion_estudiante(Estudiantes=Estudiantes):
     cestud = int(input("Ingrese la cédula del estudiante a editar: "))
     if cestud in Estudiantes:
