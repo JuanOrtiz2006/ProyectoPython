@@ -5,7 +5,6 @@ cont = 0 # Contador
 Estudiantes = {} #Diccionario de Estudiantes
 Nmat = 0 # Cant Materias
 Materias = {} #Diccionario de Materias
-
 promMat = {}
 reprobados_por_materia = {}
 proMaxMat = 0
@@ -114,41 +113,57 @@ def editar_informacion_estudiante(Estudiantes=Estudiantes):
 #Check UwU
 def tabla():
     global Estudiantes, Materias
-    tabla = np.empty((len(Estudiantes) + 1, len(Materias) + 1), dtype=object)
+    
+    # Ordenar estudiantes por nombre
+    estudiantes_ordenados = sorted(Estudiantes.items(), key=lambda item: item[1]['nombre'])
+    estudiantes_ordenados = {key: value for key, value in estudiantes_ordenados}
+    
+    # Ordenar materias por nombre
+    materias_ordenadas = sorted(Materias.items(), key=lambda item: item[1]['materia'])
+    materias_ordenadas = {key: value for key, value in materias_ordenadas}
+    
+    # Crear tabla vacía
+    tabla = np.empty((len(estudiantes_ordenados) + 1, len(materias_ordenadas) + 1), dtype=object)
     tabla[0, 0] = "Estudiantes/Materias"
-    i = 1  # Índice para columnas de materias
-    for materia in Materias:
-        tabla[0, i] = Materias[materia]['materia']
+    
+    # Llenar encabezados de materias
+    i = 1
+    for codmat, materia in materias_ordenadas.items():
+        tabla[0, i] = materia['materia']
         i += 1
-    j = 1  # Índice para filas de estudiantes
-    for cedula in Estudiantes:
-        tabla[j, 0] = Estudiantes[cedula]['nombre']
-        k = 1  # Se reinicia k en cada nueva fila (nuevo estudiante)
-        for materia in Materias:
-            tabla[j, k] = Estudiantes[cedula]['calificaciones'][Materias[materia]['materia']] 
+    
+    # Llenar filas de estudiantes y sus calificaciones
+    j = 1
+    for cedula, estudiante in estudiantes_ordenados.items():
+        tabla[j, 0] = estudiante['nombre']
+        k = 1
+        for codmat, materia in materias_ordenadas.items():
+            tabla[j, k] = estudiante['calificaciones'].get(materia['materia'], 'N/A')
             k += 1
         j += 1
+
+    print(tabla)
 
 #Revisar!!!!!!!!!!
 def graficas():
     global reprobados_ordenados
     print("\nOpciones:")
-    print("1. Estudiantes reprobados por materia")
-    print("2. Promedio de calificaciones por materia")
+    print("1. Promedios de Las materias")
+    print("2. Numero de estudiantes reprobados por materia")
     print("3. Salir")
     opcion = int(input("Seleccione una opción: "))
     
     if opcion == 1:
-        plt.bar(Materias.keys(), Materias['numReprobados'])
-        plt.xlabel("Materia")
-        plt.ylabel("Cantidad de estudiantes reprobados")
-        plt.title("Estudiantes reprobados por materia")
+        plt.bar(Materias['materia'], Materias['promMat'])
+        plt.xlabel("Materias")
+        plt.ylabel("Promedio General")
+        plt.title("Promedios de mAterias")
         plt.show()
     elif opcion == 2:
-        plt.bar(promMat.keys(), promMat.values())
-        plt.xlabel("Materia")
-        plt.ylabel("Promedio de calificaciones")
-        plt.title("Promedio de calificaciones por materia")
+        plt.bar(Materias['materia'], Materias['numReprobados'])
+        plt.xlabel("Materias")
+        plt.ylabel("Estudiantes reprobados")
+        plt.title("N.Estudiantes Reprobados")
         plt.show()
     elif opcion == 3:
         pass
