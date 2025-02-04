@@ -111,18 +111,23 @@ def editar_informacion_estudiante(Estudiantes=Estudiantes):
         print("La cédula ingresada no existe.")
 
 
-#Revisar!!!!!!!!
+#Check UwU
 def tabla():
     global Estudiantes, Materias
-    tabla = np.zeros((len(Estudiantes) + 1, len(Materias) + 1))
+    tabla = np.empty((len(Estudiantes) + 1, len(Materias) + 1), dtype=object)
     tabla[0, 0] = "Estudiantes/Materias"
-    for i in range(1, len(Materias) + 1):
-        tabla[0, i] = Materias[i]['materia']
-    for j in range(1, len(Estudiantes) + 1):
-        tabla[j, 0] = Estudiantes[j]['nombre']
-        for k in range(1, len(Materias) + 1):
-            tabla[j, k] = Estudiantes[j]['calificaciones'][k]
-    print(tabla)
+    i = 1  # Índice para columnas de materias
+    for materia in Materias:
+        tabla[0, i] = Materias[materia]['materia']
+        i += 1
+    j = 1  # Índice para filas de estudiantes
+    for cedula in Estudiantes:
+        tabla[j, 0] = Estudiantes[cedula]['nombre']
+        k = 1  # Se reinicia k en cada nueva fila (nuevo estudiante)
+        for materia in Materias:
+            tabla[j, k] = Estudiantes[cedula]['calificaciones'][Materias[materia]['materia']] 
+            k += 1
+        j += 1
 
 #Revisar!!!!!!!!!!
 def graficas():
