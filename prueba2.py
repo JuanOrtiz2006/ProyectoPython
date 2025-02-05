@@ -5,46 +5,48 @@ cont = 0 # Contador
 Estudiantes = {} #Diccionario de Estudiantes
 Nmat = 0 # Cant Materias
 Materias = {} #Diccionario de Materias
-promMat = {}
-reprobados_por_materia = {}
-proMaxMat = 0
-proMinMat = 0
-promMat=0
+tamText = 0
 # Ingresa la cantidad de estudiantes
 Nest = int(input("Ingrese la cantidad de estudiantes a registrar: "))
 # Ingresa la cantidad de materias
 Nmat = int(input("Ingrese la cantidad de materias a registrar: "))
 
 # Ingresar datos de los estudiantes
-def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest):
+def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest, tamText=tamText):
     while cont < Nest:
-        cestud = int(input("Ingrese la cédula del estudiante: "))
-        if cestud not in Estudiantes:
-            estud = input("Ingrese los nombres completos del estudiante: ")
-            Estudiantes[cestud] = {'nombre': estud, 'calificaciones': {}, 'promedio': 0, 'Estado': ''}# Investigar
-            cont += 1
+        cestud = input("Ingrese la cédula del estudiante: ")
+        if cestud not in Estudiantes and len(cestud) == 10:
+            while True:
+                estud = input("Ingrese los nombres completos del estudiante: ")
+                if estud.count(" ") == 3:
+                    Estudiantes[cestud] = {'nombre': estud, 'calificaciones': {}, 'promedio': 0, 'Estado': ''}
+                    cont += 1
+                    if len(estud) > tamText:
+                        tamText = len(estud)
+                    break
+                else:
+                    print("Nombre no valido")
         else:
-            print("La cédula ya está en uso. Por favor, ingrese una cédula única.")
+            print("La cédula ya está en uso o no tiene 10 dígitos. Por favor, ingrese una cédula válida.")
 
 # Ingresar datos de las materias
 def materias(cont2=cont):
-    cont2=0
+    cont2 = 0
     while cont2 < Nmat:
         codmat = input("Ingrese el codigo de la materia (Ejemplo: A-1): ")
-        if codmat not in Materias:
-            materia = input("Ingrese el nombre de la materia: ")
-            #If para vaildar que la materia y el codigo coincidan -----------------------------------
-            Materias[codmat] = {'materia':materia, 'numReprobados': 0, 'promMat': 0}
+        materia = input("Ingrese el nombre de la materia: ")
+
+        if codmat not in Materias and codmat[0] == materia[0]:
+            Materias[codmat] = {'materia': materia, 'numReprobados': 0, 'promMat': 0}
             cont2 += 1
         else:
-            print("El codigo ya está en uso. Por favor, ingrese una codigo único.")
-    return sorted(Materias.values())# Investigar///
+            print("Los datos no coinciden o el código ya está en uso. Por favor, ingrese de nuevo los datos.")
 
 # Agregar calificaciones
 def calificaciones(Estudiantes=Estudiantes, Materias=Materias):
     for cedula in Estudiantes:
         for materia in Materias:
-            while True: #Investigar///
+            while True:
                 print(f"Calificacion del estudiante {Estudiantes[cedula]['nombre']} en la materia {Materias[materia]['materia']}: ")
                 calificacion = float(input())
                 if 0 <= calificacion <= 100:
@@ -55,128 +57,147 @@ def calificaciones(Estudiantes=Estudiantes, Materias=Materias):
 
 # Promedio de cada materia
 def promedioMaterias():
-    global promMat, proMaxMat, proMinMat
+    global proMaxMat, proMinMat
+    proMaxMat = -1  
+    proMinMat = 101 
     for materia in Materias:
         suma = 0
         for cedula in Estudiantes:
-            suma += Estudiantes[cedula]['calificaciones'][materia]
-        Materias[materia]['promMat']= suma / len(Estudiantes)
-    
-    # Usar for e if clacular el promedio Mayor y el menor -----------------------------------------------------------
-    proMaxMat = max(Materias['promMat'])
-    proMinMat = min(Materias['promMat'])
+            suma += Estudiantes[cedula]['calificaciones'][Materias[materia]['materia']]
+        Materias[materia]['promMat'] = suma / len(Estudiantes)
 
-# Promedio de cada estudiante
+        if Materias[materia]['promMat'] > proMaxMat:
+            proMaxMat = Materias[materia]['promMat']
+        if Materias[materia]['promMat'] < proMinMat:
+            proMinMat = Materias[materia]['promMat']
+
+#Promedio De cada estudiante
 def promedioEstudiante():
-    global proMaxMat, proMinMat
+    global estMax, estMin, proMaxEst, proMinEst
+    proMaxEst = -1
+    proMinEst = 101
     for cedula in Estudiantes:
         suma = 0
         for materia in Materias:
-            suma += Estudiantes[cedula]['calificaciones'][materia]
+            suma += Estudiantes[cedula]['calificaciones'][Materias[materia]['materia']]
         promEst = suma / Nmat
         Estudiantes[cedula]['promedio'] = promEst
-        # if para ver cual estudiante tiene promedio mayor o menor---------------------------------------------------
-
-
+        if promEst > proMaxEst:
+            proMaxEst = promEst
+            estMax = Estudiantes[cedula]['nombre']
+        if promEst < proMinEst:
+            proMinEst = promEst
+            estMin = Estudiantes[cedula]['nombre']
         
 # Estado de cada estudiante (Aprobado o Reprobado)
 def calcular_reprobados():
     for materia in Materias:
         for cedula in Estudiantes:
-            if Estudiantes[cedula]['calificaciones'][materia] < 70:
+            if Estudiantes[cedula]['calificaciones'][Materias[materia]['materia']] < 70:
                 Materias[materia]['numReprobados'] += 1
+                Estudiantes[cedula]['Estado'] = "Reprobado"
+            else:
+                Estudiantes[cedula]['Estado'] = "Aprobado"
 
-
-# Investigar funcionabilidad, en especial con la funcion de calificaciones
+# Ingresar Estudiante nuevo
 def ingresar_nuevo_estudiante():
-    global cont, Nest
+    global Nest
     Nest += 1
     estudiante()
     calificaciones()
 
 # Revisar!!!!!!!
 def editar_informacion_estudiante(Estudiantes=Estudiantes):
-    cestud = int(input("Ingrese la cédula del estudiante a editar: "))
+    cestud = input("Ingrese la cédula del estudiante a editar: ")
     if cestud in Estudiantes:
-        estud = input("Ingrese los nuevos nombres completos del estudiante: ")
-        Estudiantes[cestud]['nombre'] = estud
-        print("Información del estudiante editada correctamente.")
-        editar_notas = input("¿Desea editar las calificaciones del estudiante? (s/n): ")
-        if editar_notas.lower() == 's':
-            calificaciones({cestud: Estudiantes[cestud]})
-        else:
-            print("Calificaciones no editadas.")
+        while True:
+            estud = input("Ingrese los nuevos nombres completos del estudiante: ")
+            if estud.count(" ") == 3:
+                Estudiantes[cestud]['nombre'] = estud
+                print("Información del estudiante editada correctamente.")
+                editar_notas = input("¿Desea editar las calificaciones del estudiante? (s/n): ")
+                if editar_notas.lower() == 's':
+                    calificaciones({cestud: Estudiantes[cestud]})
+                    break
+                else:
+                    print("Calificaciones no editadas.")
+            else:
+                print("Nombre no valido")
     else:
         print("La cédula ingresada no existe.")
+# Check UwU
+def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
+    estudiantes_ordenados = dict(sorted(Estudiantes.items(), key=lambda item: item[1]['nombre']))
 
+    orden = input("Desea ordenar las materias por la cantidad de estudiantes reprobados?(s/n)")
+    if orden.lower() == 's':
+        materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['numReprobados'], reverse=True))
+    else:
+        materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['materia']))
 
-#Check UwU
-def tabla():
-    global Estudiantes, Materias
-    
-    # Ordenar estudiantes por nombre
-    estudiantes_ordenados = sorted(Estudiantes.items(), key=lambda item: item[1]['nombre'])
-    estudiantes_ordenados = {key: value for key, value in estudiantes_ordenados}
-    
-    # Ordenar materias por nombre
-    materias_ordenadas = sorted(Materias.items(), key=lambda item: item[1]['materia'])
-    materias_ordenadas = {key: value for key, value in materias_ordenadas}
-    
-    # Crear tabla vacía
     tabla = np.empty((len(estudiantes_ordenados) + 1, len(materias_ordenadas) + 1), dtype=object)
-    tabla[0, 0] = "Estudiantes/Materias"
-    
-    # Llenar encabezados de materias
+    tabla[0, 0] = "" * tamText
+
     i = 1
-    for codmat, materia in materias_ordenadas.items():
-        tabla[0, i] = materia['materia']
+    for materia in materias_ordenadas:
+        tabla[0, i] = materias_ordenadas[materia]['materia']
         i += 1
-    
-    # Llenar filas de estudiantes y sus calificaciones
+
     j = 1
-    for cedula, estudiante in estudiantes_ordenados.items():
-        tabla[j, 0] = estudiante['nombre']
+    for cedula in estudiantes_ordenados:
+        tabla[j, 0] = estudiantes_ordenados[cedula]['nombre']
         k = 1
-        for codmat, materia in materias_ordenadas.items():
-            tabla[j, k] = estudiante['calificaciones'].get(materia['materia'], 'N/A')
+        for materia in materias_ordenadas:
+            tabla[j, k] = estudiantes_ordenados[cedula]['calificaciones'][materias_ordenadas[materia]['materia']]
             k += 1
         j += 1
-
     print(tabla)
-
-#Revisar!!!!!!!!!!
+# Revisar!!!!!!!!!!
 def graficas():
     global reprobados_ordenados
     print("\nOpciones:")
     print("1. Promedios de Las materias")
     print("2. Numero de estudiantes reprobados por materia")
-    print("3. Salir")
+    print("3. Estudiantes aprobados y reprobados")
+    print("4. Salir")
     opcion = int(input("Seleccione una opción: "))
+    labels = [Materias[m]['materia'] for m in Materias]
+    sizes= [Materias[m]['numReprobados'] for m in Materias]
+    prom = [Materias[m]['promMat'] for m in Materias]
+    
+    # Evitar valores NaN en la gráfica de pie
+    sizes = [size if size > 0 else 0 for size in sizes]
     
     if opcion == 1:
-        plt.bar(Materias['materia'], Materias['promMat'])
+        plt.bar(labels, prom)
         plt.xlabel("Materias")
         plt.ylabel("Promedio General")
-        plt.title("Promedios de mAterias")
+        plt.title("Promedios de Materias")
         plt.show()
     elif opcion == 2:
-        plt.bar(Materias['materia'], Materias['numReprobados'])
-        plt.xlabel("Materias")
-        plt.ylabel("Estudiantes reprobados")
-        plt.title("N.Estudiantes Reprobados")
+        colors = plt.cm.Paired(range(len(Materias)))
+        fig, ax = plt.subplots()
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors)
+        plt.title("Número de estudiantes reprobados por materia")
         plt.show()
     elif opcion == 3:
+        aprobados = sum(1 for est in Estudiantes.values() if est['Estado'] == "Aprobado")
+        reprobados = sum(1 for est in Estudiantes.values() if est['Estado'] == "Reprobado")
+        estados = ['Aprobados', 'Reprobados']
+        cantidad = [aprobados, reprobados]
+        fig, ax = plt.subplots()
+        ax.pie(cantidad, labels=estados, colors=['blue', 'red'], autopct='%1.1f%%', hatch=['**O', 'O.O'])
+        plt.show()
+    elif opcion == 4:
         pass
     else:
         print("Opción no válida. Por favor, seleccione nuevamente.")
-
 # Llamar a las funciones
 estudiante()
 materias()
 calificaciones()
 promedioMaterias()
 promedioEstudiante()
-
 # Opciones adicionales Revisar!!!!!!!!!!!!!!!!!!!!
 while True:
     print("\nOpciones adicionales:")
