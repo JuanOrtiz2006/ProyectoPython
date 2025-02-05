@@ -21,6 +21,7 @@ def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest, tamText=tamText):
                 if estud.count(" ") == 3:
                     Estudiantes[cestud] = {'nombre': estud, 'calificaciones': {}, 'promedio': 0, 'Estado': ''}
                     cont += 1
+                    print("Estudiante registrado")
                     if len(estud) > tamText:
                         tamText = len(estud)
                     break
@@ -35,9 +36,9 @@ def materias(cont2=cont):
     while cont2 < Nmat:
         codmat = input("Ingrese el codigo de la materia (Ejemplo: A-1): ")
         materia = input("Ingrese el nombre de la materia: ")
-
         if codmat not in Materias and codmat[0] == materia[0]:
             Materias[codmat] = {'materia': materia, 'numReprobados': 0, 'promMat': 0}
+            print("Materia registrada")
             cont2 += 1
         else:
             print("Los datos no coinciden o el código ya está en uso. Por favor, ingrese de nuevo los datos.")
@@ -101,10 +102,19 @@ def calcular_reprobados():
 
 # Ingresar Estudiante nuevo
 def ingresar_nuevo_estudiante():
-    global Nest
-    Nest += 1
-    estudiante()
-    calificaciones()
+    cestud = input("Ingrese la cédula del nuevo estudiante: ")
+    if cestud not in Estudiantes:
+        while True:
+            estud = input("Ingrese los nombres completos del estudiante: ")
+            if estud.count(" ") == 3:
+                Estudiantes[cestud] = {'nombre': estud, 'calificaciones': {}, 'promedio': 0, 'Estado': ''}
+                print("Estudiante registrado correctamente.")
+                calificaciones({cestud: Estudiantes[cestud]})
+                break
+            else:
+                print("Nombre no valido")
+    else:
+        print("La cédula ingresada ya existe.")
 
 # Revisar!!!!!!!
 def editar_informacion_estudiante(Estudiantes=Estudiantes):
@@ -125,13 +135,14 @@ def editar_informacion_estudiante(Estudiantes=Estudiantes):
                 print("Nombre no valido")
     else:
         print("La cédula ingresada no existe.")
+
 # Check UwU
 def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
     estudiantes_ordenados = dict(sorted(Estudiantes.items(), key=lambda item: item[1]['nombre']))
 
     orden = input("Desea ordenar las materias por la cantidad de estudiantes reprobados?(s/n)")
     if orden.lower() == 's':
-        materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['numReprobados'], reverse=True))
+        materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['numReprobados']))
     else:
         materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['materia']))
 
@@ -152,6 +163,7 @@ def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
             k += 1
         j += 1
     print(tabla)
+
 # Revisar!!!!!!!!!!
 def graficas():
     global reprobados_ordenados
@@ -175,9 +187,9 @@ def graficas():
         plt.title("Promedios de Materias")
         plt.show()
     elif opcion == 2:
-        colors = plt.cm.Paired(range(len(Materias)))
-        fig, ax = plt.subplots()
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors)
+        plt.bar(labels, sizes, color='orange')
+        plt.xlabel("Materias")
+        plt.ylabel("Número de estudiantes reprobados")
         plt.title("Número de estudiantes reprobados por materia")
         plt.show()
     elif opcion == 3:
@@ -185,19 +197,24 @@ def graficas():
         reprobados = sum(1 for est in Estudiantes.values() if est['Estado'] == "Reprobado")
         estados = ['Aprobados', 'Reprobados']
         cantidad = [aprobados, reprobados]
-        fig, ax = plt.subplots()
-        ax.pie(cantidad, labels=estados, colors=['blue', 'red'], autopct='%1.1f%%', hatch=['**O', 'O.O'])
+        
+        plt.bar(estados, cantidad, color=['blue', 'red'])
+        plt.xlabel('Estado')
+        plt.ylabel('Número de Estudiantes')
+        plt.title('Estudiantes aprobados y reprobados')
         plt.show()
     elif opcion == 4:
         pass
     else:
         print("Opción no válida. Por favor, seleccione nuevamente.")
+
 # Llamar a las funciones
 estudiante()
 materias()
 calificaciones()
 promedioMaterias()
 promedioEstudiante()
+
 # Opciones adicionales Revisar!!!!!!!!!!!!!!!!!!!!
 while True:
     print("\nOpciones adicionales:")
