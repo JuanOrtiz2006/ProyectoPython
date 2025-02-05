@@ -5,14 +5,13 @@ cont = 0 # Contador
 Estudiantes = {} #Diccionario de Estudiantes
 Nmat = 0 # Cant Materias
 Materias = {} #Diccionario de Materias
-tamText = 0
 # Ingresa la cantidad de estudiantes
 Nest = int(input("Ingrese la cantidad de estudiantes a registrar: "))
 # Ingresa la cantidad de materias
 Nmat = int(input("Ingrese la cantidad de materias a registrar: "))
 
 # Ingresar datos de los estudiantes
-def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest, tamText=tamText):
+def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest):
     while cont < Nest:
         cestud = input("Ingrese la cédula del estudiante: ")
         if cestud not in Estudiantes and len(cestud) == 10:
@@ -22,8 +21,6 @@ def estudiante(Estudiantes=Estudiantes, cont=cont, Nest=Nest, tamText=tamText):
                     Estudiantes[cestud] = {'nombre': estud, 'calificaciones': {}, 'promedio': 0, 'Estado': ''}
                     cont += 1
                     print("Estudiante registrado")
-                    if len(estud) > tamText:
-                        tamText = len(estud)
                     break
                 else:
                     print("Nombre no valido")
@@ -116,28 +113,49 @@ def ingresar_nuevo_estudiante():
     else:
         print("La cédula ingresada ya existe.")
 
-# Revisar!!!!!!!
+# Editar estudiante
 def editar_informacion_estudiante(Estudiantes=Estudiantes):
-    cestud = input("Ingrese la cédula del estudiante a editar: ")
-    if cestud in Estudiantes:
-        while True:
-            estud = input("Ingrese los nuevos nombres completos del estudiante: ")
-            if estud.count(" ") == 3:
-                Estudiantes[cestud]['nombre'] = estud
-                print("Información del estudiante editada correctamente.")
-                editar_notas = input("¿Desea editar las calificaciones del estudiante? (s/n): ")
-                if editar_notas.lower() == 's':
-                    calificaciones({cestud: Estudiantes[cestud]})
+    print("Seleccione una opcion")
+    print("1 Editar nombre")
+    print("2 Editar Calificaciones")
+    print("3 Editar Todo")
+    print("4 Salir")
+
+    opcion=int(input("Opcion:"))
+    
+    if opcion==1:
+        cestud = input("Ingrese la cédula del estudiante a editar: ")
+        if cestud in Estudiantes:
+            while True:
+                estud = input("Ingrese los nuevos nombres completos del estudiante: ")
+                if estud.count(" ") == 3:
+                    Estudiantes[cestud]['nombre'] = estud
+                    print("Información del estudiante editada correctamente.")
                     break
                 else:
-                    print("Calificaciones no editadas.")
-            else:
-                print("Nombre no valido")
+                    print("Nombre no valido")
+    elif opcion==2:
+        cestud = input("Ingrese la cédula del estudiante a editar: ")
+        if cestud in Estudiantes:
+            calificaciones({cestud: Estudiantes[cestud]})
+    elif opcion==3:
+        cestud = input("Ingrese la cédula del estudiante a editar: ")
+        if cestud in Estudiantes:
+            while True:
+                estud = input("Ingrese los nuevos nombres completos del estudiante: ")
+                if estud.count(" ") == 3:
+                    Estudiantes[cestud]['nombre'] = estud
+                    print("Nombre editado correctamente.")
+                else:
+                    print("Nombre no valido")
+        calificaciones({cestud: Estudiantes[cestud]})
+    elif opcion==4:
+        pass
     else:
         print("La cédula ingresada no existe.")
 
-# Check UwU
-def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
+# Tabla
+def tabla(Estudiantes=Estudiantes, Materias=Materias):
     estudiantes_ordenados = dict(sorted(Estudiantes.items(), key=lambda item: item[1]['nombre']))
 
     orden = input("Desea ordenar las materias por la cantidad de estudiantes reprobados?(s/n)")
@@ -147,7 +165,7 @@ def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
         materias_ordenadas = dict(sorted(Materias.items(), key=lambda item: item[1]['materia']))
 
     tabla = np.empty((len(estudiantes_ordenados) + 1, len(materias_ordenadas) + 1), dtype=object)
-    tabla[0, 0] = "" * tamText
+    tabla[0, 0] = ""
 
     i = 1
     for materia in materias_ordenadas:
@@ -164,7 +182,7 @@ def tabla(Estudiantes=Estudiantes, Materias=Materias, tamText=tamText):
         j += 1
     print(tabla)
 
-# Revisar!!!!!!!!!!
+# Graficas
 def graficas():
     global reprobados_ordenados
     print("\nOpciones:")
@@ -177,7 +195,6 @@ def graficas():
     sizes= [Materias[m]['numReprobados'] for m in Materias]
     prom = [Materias[m]['promMat'] for m in Materias]
     
-    # Evitar valores NaN en la gráfica de pie
     sizes = [size if size > 0 else 0 for size in sizes]
     
     if opcion == 1:
@@ -215,7 +232,7 @@ calificaciones()
 promedioMaterias()
 promedioEstudiante()
 
-# Opciones adicionales Revisar!!!!!!!!!!!!!!!!!!!!
+# Opciones
 while True:
     print("\nOpciones adicionales:")
     print("1. Ingresar un nuevo estudiante")
